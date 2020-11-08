@@ -1,10 +1,11 @@
 {
-  "name": "node-ts-clean-api-boilerplate",
-  "version": "1.0.0",
-  "description": "",
+  "name": "authentication-node-api",
+  "version": "0.0.0",
+  "description": "Node API responsible for authenticate user",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --passWithNoTests --silent --runInBand",
+    "test:unit": "npm test -- --watch -c jest-unit-config.js"
   },
   "keywords": [],
   "author": "",
