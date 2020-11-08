@@ -1,5 +1,5 @@
 import { Authentication, AuthenticationModel } from '../../../domain/usecases/authentication'
-import { badRequest } from '../../helpers/http/http-helpers'
+import { badRequest, unauthorized } from '../../helpers/http/http-helpers'
 import { MissingParamError, ServerError } from './../../errors'
 import { LoginController } from './login'
 
@@ -53,7 +53,7 @@ describe('Login Controller', () => {
   test('Should call Authenticator with correct data', async () => {
     const { sut, authenticatorStub } = makeSut()
 
-    const authenticatSpy = jest.spyOn(authenticatorStub, 'auth')
+    const authSpy = jest.spyOn(authenticatorStub, 'auth')
 
     const httpRequest: any = {
       body: {
@@ -62,7 +62,7 @@ describe('Login Controller', () => {
       }
     }
     await sut.handle(httpRequest)
-    expect(authenticatSpy).toHaveBeenCalledWith({
+    expect(authSpy).toHaveBeenCalledWith({
       email: 'any_email@email.com',
       password: 'any_password'
     })
@@ -82,5 +82,20 @@ describe('Login Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError('any_error'))
+  })
+
+  test('Should return 401 if Authentication failed', async () => {
+    const { sut, authenticatorStub } = makeSut()
+
+    jest.spyOn(authenticatorStub, 'auth').mockResolvedValueOnce(null)
+
+    const httpRequest: any = {
+      body: {
+        email: 'any_email@email.com',
+        password: 'any_password'
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse).toEqual(unauthorized())
   })
 })
