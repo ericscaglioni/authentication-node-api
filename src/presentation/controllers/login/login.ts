@@ -2,7 +2,7 @@ import { Authentication } from '../../../domain/usecases/authentication'
 import { MissingParamError } from '../../errors'
 import { Controller } from '../../protocols/controller'
 import { HttpRequest, HttpResponse } from '../../protocols/http'
-import { badRequest, serverError } from './../../helpers/http/http-helpers'
+import { badRequest, serverError, unauthorized } from './../../helpers/http/http-helpers'
 
 export class LoginController implements Controller {
   private readonly authenticator: Authentication
@@ -22,10 +22,13 @@ export class LoginController implements Controller {
       }
 
       const { email, password } = httpRequest.body
-      await this.authenticator.auth({
+      const accessToken = await this.authenticator.auth({
         email,
         password
       })
+      if (!accessToken) {
+        return unauthorized()
+      }
     } catch (err) {
       return serverError(err)
     }
