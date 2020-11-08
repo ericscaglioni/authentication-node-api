@@ -1,7 +1,7 @@
 import { Authentication, AuthenticationModel } from '../../../domain/usecases/authentication'
 import { badRequest, ok, unauthorized } from '../../helpers/http/http-helpers'
 import { EmailValidator, HttpRequest } from '../../protocols'
-import { MissingParamError, ServerError } from './../../errors'
+import { InvalidParamError, MissingParamError, ServerError } from './../../errors'
 import { LoginController } from './login'
 
 const makeFakeRequest = (): HttpRequest => ({
@@ -75,6 +75,13 @@ describe('Login Controller', () => {
     const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
     await sut.handle(makeFakeRequest())
     expect(isValidSpy).toHaveBeenCalledWith('any_email@email.com')
+  })
+
+  test('Should return 400 if provided email is not valid', async () => {
+    const { sut, emailValidatorStub } = makeSut()
+    jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
+    const httpResponse = await sut.handle(makeFakeRequest())
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError('email')))
   })
 
   test('Should call Authenticator with correct data', async () => {
