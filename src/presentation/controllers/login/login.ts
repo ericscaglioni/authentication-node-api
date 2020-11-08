@@ -2,7 +2,7 @@ import { Authentication } from '../../../domain/usecases/authentication'
 import { MissingParamError } from '../../errors'
 import { Controller } from '../../protocols/controller'
 import { HttpRequest, HttpResponse } from '../../protocols/http'
-import { badRequest, serverError, unauthorized } from './../../helpers/http/http-helpers'
+import { badRequest, ok, serverError, unauthorized } from './../../helpers/http/http-helpers'
 
 export class LoginController implements Controller {
   private readonly authenticator: Authentication
@@ -29,6 +29,7 @@ export class LoginController implements Controller {
       if (!accessToken) {
         return unauthorized()
       }
+      return ok({ accessToken })
     } catch (err) {
       return serverError(err)
     }
