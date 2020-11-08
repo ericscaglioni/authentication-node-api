@@ -1,7 +1,15 @@
 import { Authentication, AuthenticationModel } from '../../../domain/usecases/authentication'
 import { badRequest, ok, unauthorized } from '../../helpers/http/http-helpers'
+import { HttpRequest } from '../../protocols/http'
 import { MissingParamError, ServerError } from './../../errors'
 import { LoginController } from './login'
+
+const makeFakeRequest = (): HttpRequest => ({
+  body: {
+    email: 'any_email@email.com',
+    password: 'any_password'
+  }
+})
 
 const makeAuthenticator = (): Authentication => {
   class AuthenticatorStub implements Authentication {
@@ -55,13 +63,7 @@ describe('Login Controller', () => {
 
     const authSpy = jest.spyOn(authenticatorStub, 'auth')
 
-    const httpRequest: any = {
-      body: {
-        email: 'any_email@email.com',
-        password: 'any_password'
-      }
-    }
-    await sut.handle(httpRequest)
+    await sut.handle(makeFakeRequest())
     expect(authSpy).toHaveBeenCalledWith({
       email: 'any_email@email.com',
       password: 'any_password'
@@ -73,13 +75,7 @@ describe('Login Controller', () => {
 
     jest.spyOn(authenticatorStub, 'auth').mockRejectedValueOnce(new Error('any_error'))
 
-    const httpRequest: any = {
-      body: {
-        email: 'any_email@email.com',
-        password: 'any_password'
-      }
-    }
-    const httpResponse = await sut.handle(httpRequest)
+    const httpResponse = await sut.handle(makeFakeRequest())
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError('any_error'))
   })
@@ -88,27 +84,13 @@ describe('Login Controller', () => {
     const { sut, authenticatorStub } = makeSut()
 
     jest.spyOn(authenticatorStub, 'auth').mockResolvedValueOnce(null)
-
-    const httpRequest: any = {
-      body: {
-        email: 'any_email@email.com',
-        password: 'any_password'
-      }
-    }
-    const httpResponse = await sut.handle(httpRequest)
+    const httpResponse = await sut.handle(makeFakeRequest())
     expect(httpResponse).toEqual(unauthorized())
   })
 
   test('Should return 200 if valid credentials are provided', async () => {
     const { sut } = makeSut()
-
-    const httpRequest: any = {
-      body: {
-        email: 'any_email@email.com',
-        password: 'any_password'
-      }
-    }
-    const httpResponse = await sut.handle(httpRequest)
+    const httpResponse = await sut.handle(makeFakeRequest())
     expect(httpResponse).toEqual(ok({ accessToken: 'any_token' }))
   })
 })
