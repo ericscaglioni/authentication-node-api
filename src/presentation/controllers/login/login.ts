@@ -1,6 +1,8 @@
 import { Authentication } from '../../../domain/usecases/authentication'
-import { HttpRequest, HttpResponse } from '../protocols/http'
-import { Controller } from './../protocols/controller'
+import { MissingParamError } from '../../errors'
+import { Controller } from '../../protocols/controller'
+import { HttpRequest, HttpResponse } from '../../protocols/http'
+import { badRequest } from './../../helpers/http/http-helpers'
 
 export class LoginController implements Controller {
   private readonly authenticator: Authentication
@@ -11,18 +13,13 @@ export class LoginController implements Controller {
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
     if (!httpRequest.body.email) {
-      return {
-        statusCode: 400,
-        body: new Error('email')
-      }
+      return badRequest(new MissingParamError('email'))
     }
 
     if (!httpRequest.body.password) {
-      return {
-        statusCode: 400,
-        body: new Error('password')
-      }
+      return badRequest(new MissingParamError('password'))
     }
+
     const { email, password } = httpRequest.body
     await this.authenticator.authenticate({
       email,

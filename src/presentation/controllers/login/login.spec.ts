@@ -1,4 +1,6 @@
 import { Authentication, AuthenticationModel } from '../../../domain/usecases/authentication'
+import { badRequest } from '../../helpers/http/http-helpers'
+import { MissingParamError } from './../../errors'
 import { LoginController } from './login'
 
 const makeAuthenticator = (): Authentication => {
@@ -34,7 +36,7 @@ describe('Login Controller', () => {
     }
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body).toEqual(new Error('email'))
+    expect(httpResponse).toEqual(badRequest(new MissingParamError('email')))
   })
 
   test('Should return status code 400 if password is not provided', async () => {
@@ -45,8 +47,7 @@ describe('Login Controller', () => {
       }
     }
     const httpResponse = await sut.handle(httpRequest)
-    expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body).toEqual(new Error('password'))
+    expect(httpResponse).toEqual(badRequest(new MissingParamError('password')))
   })
 
   test('Should call Authenticator with correct data', async () => {
