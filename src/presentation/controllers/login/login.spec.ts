@@ -1,5 +1,5 @@
 import { Authentication, AuthenticationModel } from '../../../domain/usecases/authentication'
-import { badRequest, unauthorized } from '../../helpers/http/http-helpers'
+import { badRequest, ok, unauthorized } from '../../helpers/http/http-helpers'
 import { MissingParamError, ServerError } from './../../errors'
 import { LoginController } from './login'
 
@@ -97,5 +97,18 @@ describe('Login Controller', () => {
     }
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse).toEqual(unauthorized())
+  })
+
+  test('Should return 200 if valid credentials are provided', async () => {
+    const { sut } = makeSut()
+
+    const httpRequest: any = {
+      body: {
+        email: 'any_email@email.com',
+        password: 'any_password'
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse).toEqual(ok({ accessToken: 'any_token' }))
   })
 })
