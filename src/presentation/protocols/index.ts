@@ -1,4 +1,4 @@
 export * from './controller'
-export * from './email-validator'
+export * from './email-validation'
 export * from './http'
 export * from './validator'
