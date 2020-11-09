@@ -1,6 +1,6 @@
 import { Authentication, AuthenticationModel } from '../../../domain/usecases/authentication'
 import { badRequest, ok, unauthorized } from '../../helpers/http/http-helpers'
-import { EmailValidator, HttpRequest, Validator } from '../../protocols'
+import { EmailValidation, HttpRequest, Validator } from '../../protocols'
 import { InvalidParamError, ServerError } from './../../errors'
 import { LoginController } from './login'
 
@@ -20,13 +20,13 @@ const makeFakeRequest = (): HttpRequest => ({
   }
 })
 
-const makeEmailValidator = (): EmailValidator => {
-  class EmailValidatorStub implements EmailValidator {
+const makeEmailValidation = (): EmailValidation => {
+  class EmailValidationStub implements EmailValidation {
     isValid (email: string): boolean {
       return true
     }
   }
-  return new EmailValidatorStub()
+  return new EmailValidationStub()
 }
 
 const makeAuthenticator = (): Authentication => {
@@ -41,13 +41,13 @@ const makeAuthenticator = (): Authentication => {
 interface SutTypes {
   sut: LoginController
   authenticatorStub: Authentication
-  emailValidatorStub: EmailValidator
+  emailValidatorStub: EmailValidation
   validatorStub: Validator
 }
 
 const makeSut = (): SutTypes => {
   const validatorStub = makeValidatorStub()
-  const emailValidatorStub = makeEmailValidator()
+  const emailValidatorStub = makeEmailValidation()
   const authenticatorStub = makeAuthenticator()
   const sut = new LoginController(authenticatorStub, emailValidatorStub, validatorStub)
   return {
