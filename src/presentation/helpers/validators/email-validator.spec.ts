@@ -39,4 +39,10 @@ describe('Email Validator', () => {
     sut.validate({ email: 'any_email@mail.com' })
     expect(isValidSpy).toHaveBeenCalledWith('any_email@mail.com')
   })
+
+  test('Should not return if validation succeeds', () => {
+    const { sut } = makeSut()
+    const error = sut.validate({ email: 'any_email@mail.com' })
+    expect(error).toBeFalsy()
+  })
 })
